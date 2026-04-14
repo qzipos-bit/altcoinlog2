@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: altcoinlog
+      POSTGRES_PASSWORD: altcoinlog
+      POSTGRES_DB: altcoinlog
+    ports:
+      - "5432:5432"
+    volumes:
+      - altcoinlog_pg:/var/lib/postgresql/data
+
+volumes:
+  altcoinlog_pg:

@@ -1,0 +1,167 @@
+// Altcoinlog 2.0 — content, sources, moderation
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum ArticleStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum IngestionStatus {
+  RECEIVED
+  DEDUPED_SKIPPED
+  QUEUED_FOR_MODERATION
+  PROMOTED
+  REJECTED
+}
+
+enum ModerationTaskType {
+  INGESTION_REVIEW
+  ARTICLE_REVIEW
+}
+
+enum ModerationTaskStatus {
+  OPEN
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  passwordHash    String
+  role            Role             @default(EDITOR)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  authorProfile   AuthorProfile?
+  assignedTasks   ModerationTask[] @relation("AssignedModerator")
+}
+
+model AuthorProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  displayName String
+  slug        String    @unique
+  bio         String?   @db.Text
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articles    Article[] @relation("ArticleAuthor")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?   @db.Text
+  articles    Article[]
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  slug     String       @unique
+  name     String
+  articles ArticleTag[]
+}
+
+model Article {
+  id               String         @id @default(cuid())
+  slug             String         @unique
+  title            String
+  excerpt          String?        @db.Text
+  body             String         @db.Text
+  status           ArticleStatus  @default(DRAFT)
+  featuredImageUrl String?
+  ogTitle          String?
+  ogDescription    String?        @db.Text
+  publishedAt      DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  categoryId       String?
+  category         Category?      @relation(fields: [categoryId], references: [id])
+  authorId         String?
+  author           AuthorProfile? @relation("ArticleAuthor", fields: [authorId], references: [id])
+  tags             ArticleTag[]
+  ingestionSource  IngestionItem?
+  moderationTasks  ModerationTask[]
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+}
+
+model Source {
+  id        String          @id @default(cuid())
+  name      String
+  url       String
+  feedUrl   String?
+  enabled   Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  items     IngestionItem[]
+}
+
+model IngestionItem {
+  id              String          @id @default(cuid())
+  sourceId        String
+  source          Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  externalId      String?
+  url             String
+  title           String
+  summary         String?         @db.Text
+  rawBody         String?         @db.Text
+  fingerprint     String          @unique
+  status          IngestionStatus @default(RECEIVED)
+  fetchedAt       DateTime        @default(now())
+  articleId       String?         @unique
+  article         Article?        @relation(fields: [articleId], references: [id])
+  moderationTasks ModerationTask[]
+}
+
+model ModerationTask {
+  id               String               @id @default(cuid())
+  type             ModerationTaskType
+  status           ModerationTaskStatus @default(OPEN)
+  ingestionItemId  String?
+  ingestionItem    IngestionItem?       @relation(fields: [ingestionItemId], references: [id], onDelete: Cascade)
+  articleId        String?
+  article          Article?             @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  assignedUserId   String?
+  assignedUser     User?                @relation("AssignedModerator", fields: [assignedUserId], references: [id])
+  notes            String?              @db.Text
+  createdAt        DateTime             @default(now())
+  resolvedAt       DateTime?
+}
+
+enum LeadSource {
+  ANTISCAM_AUDIT
+  NEWSLETTER
+  REGISTRATION_INTEREST
+}
+
+/// Заявки с посадочных (антискам, рассылка, интерес к регистрации)
+model MarketingLead {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  email     String
+  name      String?
+  phone     String?
+  source    LeadSource
+  message   String?    @db.Text
+}
