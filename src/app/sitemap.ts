@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { legalNav } from "@/content/legal/documents";
 import { ratingSlugs } from "@/content/ratings";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site";
@@ -23,6 +24,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/antiskam-audit`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.75 },
     { url: `${base}/registratsiya`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/otzyvy`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    ...legalNav.map((d) => ({
+      url: `${base}/${d.slug}`,
+      changeFrequency: "yearly" as const,
+      priority: d.group === "trust" ? 0.5 : 0.3,
+    })),
   ];
 
   const [articles, categories, tags] = await Promise.all([

@@ -44,6 +44,10 @@ export async function submitMarketingLead(
     return { ok: true };
   }
 
+  if (formData.get("consent") !== "on") {
+    return { ok: false, error: "Подтвердите согласие на обработку персональных данных." };
+  }
+
   const parsed = emailSchema.safeParse({
     email: formData.get("email"),
     name: formData.get("name") || undefined,
@@ -62,6 +66,7 @@ export async function submitMarketingLead(
       phone: parsed.data.phone || null,
       message: parsed.data.message || null,
       source,
+      consentAt: new Date(),
     },
   });
 

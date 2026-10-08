@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
+import { submitNewsletterLead } from "@/app/(public)/lead-actions";
+import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
 
 export function FooterNewsletterBar() {
-  const [email, setEmail] = useState("dhgh@gmail.com");
+  const [state, formAction, pending] = useActionState(submitNewsletterLead, { ok: false });
 
   return (
     <div className="border-y border-white/10 bg-[#1a1a1a]">
@@ -11,43 +13,40 @@ export function FooterNewsletterBar() {
         <p className="max-w-xl shrink-0 text-sm leading-snug text-white lg:max-w-[320px]">
           Подпишись на вечернюю рассылку с главными новостями за день
         </p>
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <label htmlFor="footer-newsletter-email" className="text-xs font-medium text-zinc-400">
-            Email для рассылки
-          </label>
-          <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-end lg:max-w-2xl">
-            <div className="flex min-w-0 flex-1 overflow-hidden rounded-full border border-zinc-400/30 bg-white shadow-sm">
-              <div className="relative min-w-0 flex-1">
-                <input
-                  id="footer-newsletter-email"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="dhgh@gmail.com"
-                  className="h-12 w-full border-0 bg-transparent pr-10 pl-4 text-sm text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus:ring-0"
-                />
-                {email.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setEmail("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
-                    aria-label="Очистить поле"
-                  >
-                    <span className="text-xl leading-none">×</span>
-                  </button>
-                )}
-              </div>
-              <div className="hidden w-px shrink-0 self-stretch bg-zinc-200 sm:block" aria-hidden />
+        {state.ok ? (
+          <p className="text-sm text-white">Готово, вы подписаны на рассылку.</p>
+        ) : (
+          <form action={formAction} className="flex min-w-0 flex-1 flex-col gap-2 lg:max-w-2xl">
+            <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+            <label htmlFor="footer-newsletter-email" className="text-xs font-medium text-zinc-400">
+              Email для рассылки
+            </label>
+            <div className="flex min-w-0 overflow-hidden rounded-full border border-zinc-400/30 bg-white shadow-sm">
+              <input
+                id="footer-newsletter-email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+                className="h-12 min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus:ring-0"
+              />
               <button
-                type="button"
-                className="h-12 shrink-0 bg-white px-5 text-sm font-semibold text-blue-600 hover:bg-zinc-50 sm:border-l sm:border-zinc-200"
+                type="submit"
+                disabled={pending}
+                className="h-12 shrink-0 border-l border-zinc-200 bg-white px-5 text-sm font-semibold text-blue-600 hover:bg-zinc-50 disabled:opacity-50"
               >
-                Подписаться +
+                {pending ? "Отправка…" : "Подписаться +"}
               </button>
             </div>
-          </div>
-        </div>
+            <ConsentCheckbox tone="dark" />
+            {state.error && (
+              <p className="text-xs text-red-400" role="alert">
+                {state.error}
+              </p>
+            )}
+          </form>
+        )}
         <p className="shrink-0 text-sm text-white lg:ml-auto lg:self-center lg:text-right">
           699&nbsp;788 уже подписаны
         </p>

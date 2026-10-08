@@ -164,4 +164,6 @@ model MarketingLead {
   phone     String?
   source    LeadSource
   message   String?    @db.Text
+  /// Момент, когда пользователь отметил согласие на обработку ПД (152-ФЗ, ст. 9).
+  consentAt DateTime?
 }

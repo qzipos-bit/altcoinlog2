@@ -1,12 +1,39 @@
+import Link from "next/link";
+
+const linkClass = "font-medium text-[color:var(--color-brand)] underline underline-offset-2 hover:no-underline";
+
 function inlineFormat(text: string, keyBase: string) {
-  const parts = text.split(/(\*\*.+?\*\*)/g);
+  const parts = text.split(/(\*\*.+?\*\*|\[[^\]]+\]\([^)\s]+\))/g);
   return parts.map((part, i) => {
-    const m = part.match(/^\*\*(.+)\*\*$/);
-    if (m) {
+    const key = `${keyBase}-${i}`;
+    const bold = part.match(/^\*\*(.+)\*\*$/);
+    if (bold) {
       return (
-        <strong key={`${keyBase}-${i}`} className="font-semibold text-zinc-900">
-          {m[1]}
+        <strong key={key} className="font-semibold text-zinc-900">
+          {bold[1]}
         </strong>
+      );
+    }
+    const link = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+    if (link) {
+      const [, label, href] = link;
+      if (href.startsWith("/")) {
+        return (
+          <Link key={key} href={href} className={linkClass}>
+            {label}
+          </Link>
+        );
+      }
+      const external = /^https?:/.test(href);
+      return (
+        <a
+          key={key}
+          href={href}
+          className={linkClass}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
+          {label}
+        </a>
       );
     }
     return part;

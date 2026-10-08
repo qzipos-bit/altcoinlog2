@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { FooterNewsletterBar } from "@/components/exchange/FooterNewsletterBar";
+import { operator } from "@/content/legal/operator";
+import { ratingLandings, ratingSlugs } from "@/content/ratings";
 
 function LogoMark() {
   return (
@@ -29,7 +31,6 @@ function ChatBubbleIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
 function SmallCircleAccentIcon({ className }: { className?: string }) {
   return (
     <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -38,117 +39,91 @@ function SmallCircleAccentIcon({ className }: { className?: string }) {
   );
 }
 
-function FooterSection({
-  title,
-  links,
-}: {
-  title: string;
-  links: readonly { href: string; label: string }[];
-}) {
+type FooterLink = { href: string; label: string };
+
+function FooterLinks({ links }: { links: readonly FooterLink[] }) {
   return (
-    <div>
-      <p className="text-sm font-bold text-white">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm text-zinc-400">
-        {links.map((l) => (
-          <li key={l.label}>
-            <Link href={l.href} className="transition hover:text-white">
+    <ul className="space-y-2 text-sm">
+      {links.map((l) => (
+        <li key={l.href}>
+          {l.href.startsWith("/") ? (
+            <Link href={l.href} className="text-zinc-200 transition hover:text-white">
               {l.label}
             </Link>
-          </li>
-        ))}
-      </ul>
+          ) : (
+            <a href={l.href} target="_blank" rel="noopener noreferrer" className="text-zinc-200 transition hover:text-white">
+              {l.label}
+            </a>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function FooterSection({ title, links }: { title: string; links: readonly FooterLink[] }) {
+  return (
+    <div>
+      <p className="mb-3 text-sm text-zinc-500">{title}</p>
+      <FooterLinks links={links} />
     </div>
   );
 }
 
-const col1About = [
-  { href: "#", label: "О нас" },
-  { href: "#", label: "Выходные данные" },
-  { href: "#", label: "Карьера" },
-  { href: "/otzyvy", label: "Блог" },
-  { href: "#", label: "Отношения с инвесторами" },
+const aboutLinks = [
+  { href: "/contact", label: "О проекте" },
+  { href: "/authors", label: "Редакция" },
 ] as const;
 
-const col1Contacts = [
-  { href: "/registratsiya", label: "Свяжитесь с нами" },
-  { href: "#", label: "Доступность" },
-  { href: "#", label: "Рекламировать" },
-  { href: "/sitemap.xml", label: "Карта сайта" },
-  { href: "#", label: "Состояние системы" },
+const keyLegalLinks = [
+  { href: "/preduprezhdenie-o-riskah", label: "Предупреждение о рисках" },
+  { href: "/user-agreement", label: "Пользовательское соглашение" },
+  { href: "/policy", label: "Политика обработки персональных данных" },
 ] as const;
 
-const col2News = [
-  { href: "/category/rynok", label: "Рынки" },
-  { href: "#", label: "Финансы" },
-  { href: "#", label: "Технологии" },
-  { href: "/category/regulirovanie", label: "Политика" },
-  { href: "#", label: "Фокус" },
+const cooperationLinks = [
+  { href: "/ads-policy", label: "Размещение рекламы" },
+  { href: operator.mediaKitUrl, label: "MediaKit" },
+  { href: "/affiliate-disclosure", label: "Партнёрские ссылки" },
 ] as const;
 
-const col2Video = [
-  { href: "#", label: "Ежедневник" },
-  { href: "#", label: "Выбор редакции" },
-  { href: "#", label: "Shorts" },
-  { href: "#", label: "В центре внимания" },
+const editorialLinks = [
+  { href: "/editorial-policy", label: "Редакционная политика" },
+  { href: "/metodologiya-reitingov", label: "Методология рейтингов" },
+  { href: "/copyright-policy", label: "Авторское право" },
 ] as const;
 
-const col2Podcasts = [
-  { href: "#", label: "Сеть подкастов" },
-  { href: "#", label: "Прогноз по рынкам" },
-  { href: "#", label: "Gen C" },
+const documentLinks = [
+  { href: "/soglasie-na-obrabotku-personalnyh-dannyh", label: "Согласие на обработку персональных данных" },
+  { href: "/cookie-policy", label: "Политика файлов cookie" },
+  { href: "/disclaimer", label: "Отказ от ответственности" },
 ] as const;
 
-const col3Crypto = [
-  { href: "/kursy-kriptovalut", label: "Цены" },
-  { href: "/tags/bitcoin", label: "Bitcoin (BTC)" },
-  { href: "#", label: "Ethereum (ETH)" },
-  { href: "#", label: "XRP" },
-  { href: "#", label: "Solana (SOL)" },
+const ratingLinks = ratingSlugs.map((slug) => ({ href: `/reitingi/${slug}`, label: ratingLandings[slug].title }));
+
+const sectionLinks = [
+  { href: "/", label: "Главная" },
+  { href: "/novosti", label: "Новости" },
+  { href: "/kursy-kriptovalut", label: "Курсы криптовалют" },
+  { href: "/konverter", label: "Конвертер" },
+  { href: "/sravnenie", label: "Сравнение" },
+  { href: "/reitingi", label: "Рейтинги" },
+  { href: "/otzyvy", label: "Отзывы" },
+  { href: "/antiskam-audit", label: "Антискам-аудит" },
 ] as const;
 
-const col3Research = [{ href: "#", label: "Исследования/Отчеты" }] as const;
-
-const col3Data = [
-  { href: "#", label: "Рыночные данные" },
-  { href: "#", label: "Индексные продукты" },
-  { href: "#", label: "API" },
-  { href: "#", label: "Аналитика и исследования" },
-  { href: "#", label: "Документация и управление" },
+const socials = [
+  { href: operator.social.twitter, label: "X (Twitter)", short: "X" },
+  { href: operator.social.youtube, label: "YouTube", short: "YT" },
+  { href: operator.social.telegram, label: "Telegram", short: "TG" },
+  { href: operator.social.vk, label: "ВКонтакте", short: "VK" },
 ] as const;
 
-const col4Events = [
-  { href: "#", label: "Консенсус Гонконг" },
-  { href: "#", label: "Консенсус Майами" },
-  { href: "#", label: "Вебинары" },
+const emails = [
+  { label: "Контакты", email: operator.emails.support },
+  { label: "Реклама", email: operator.emails.sales },
+  { label: "Работа", email: operator.emails.job },
 ] as const;
-
-const col4Sponsored = [
-  { href: "#", label: "Лидерство в области идей" },
-  { href: "#", label: "Пресс-релиз" },
-  { href: "#", label: "MEXC" },
-  { href: "#", label: "Phemex" },
-  { href: "#", label: "Stellar" },
-] as const;
-
-function SocialIcon({
-  href,
-  label,
-  children,
-}: {
-  href: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-800/90 text-zinc-200 ring-1 ring-white/10 transition hover:bg-zinc-700 hover:text-white"
-      aria-label={label}
-    >
-      {children}
-    </Link>
-  );
-}
 
 export function ExchangeFooter() {
   const year = new Date().getFullYear();
@@ -239,56 +214,67 @@ export function ExchangeFooter() {
         </div>
       </div>
 
-      {/* Сетка разделов (карта сайта) */}
       <div className="border-t border-white/10 bg-black">
-        <div className="mx-auto max-w-[1440px] px-4 py-14">
-          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-10 lg:gap-y-10">
-            <div className="space-y-8">
+        <div className="mx-auto grid max-w-[1440px] gap-12 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-10">
+          <div className="space-y-6">
             <FooterLogo />
-            <FooterSection title="О нас" links={col1About} />
-            <FooterSection title="Контакты" links={col1Contacts} />
-            </div>
-            <div className="space-y-8">
-            <FooterSection title="Новости" links={col2News} />
-            <FooterSection title="Видео" links={col2Video} />
-            <FooterSection title="Подкасты" links={col2Podcasts} />
-            </div>
-            <div className="space-y-8">
-            <FooterSection title="Криптовалюта" links={col3Crypto} />
-            <FooterSection title="Исследования" links={col3Research} />
-            <FooterSection title="Данные и индексы" links={col3Data} />
-            </div>
-            <div className="space-y-8">
-            <FooterSection title="События" links={col4Events} />
-            <FooterSection title="Спонсируемое" links={col4Sponsored} />
+            <p className="text-sm leading-relaxed text-zinc-400">
+              Altcoinlog — независимый информационный ресурс о криптовалютах, блокчейне и цифровых активах. Работаем с{" "}
+              {operator.foundedYear} года.
+            </p>
+            <FooterLinks links={aboutLinks} />
+            <ul className="space-y-2 text-sm">
+              {emails.map((e) => (
+                <li key={e.email} className="text-zinc-500">
+                  {e.label}:{" "}
+                  <a href={`mailto:${e.email}`} className="text-zinc-200 transition hover:text-white">
+                    {e.email}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <FooterLinks links={keyLegalLinks} />
+            <div className="flex gap-2">
+              {socials.map((s) => (
+                <a
+                  key={s.href}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-[11px] font-bold text-zinc-200 ring-1 ring-white/20 transition hover:bg-zinc-800 hover:text-white"
+                >
+                  {s.short}
+                </a>
+              ))}
             </div>
           </div>
+
+          <div className="space-y-8">
+            <FooterSection title="Сотрудничество" links={cooperationLinks} />
+            <FooterSection title="Редакция" links={editorialLinks} />
+            <FooterSection title="Документы" links={documentLinks} />
+            <FooterLinks links={[{ href: operator.englishSiteUrl, label: "Altcoinlog English" }]} />
+          </div>
+
+          <FooterSection title="Полезные рейтинги" links={ratingLinks} />
+          <FooterSection title="Разделы сайта" links={sectionLinks} />
         </div>
       </div>
 
-      {/* Нижняя полоса: копирайт и соцсети */}
       <div className="border-t border-white/10 bg-black">
-        <div className="mx-auto flex max-w-[1440px] flex-col items-start gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-zinc-400">
-            <span>© {year} AltCoinLog</span>
-            <span className="mx-2 text-zinc-600" aria-hidden>
-              ·
+        <div className="mx-auto max-w-[1440px] space-y-4 px-4 py-8 text-center text-sm text-zinc-500">
+          <p>
+            © {operator.foundedYear}–{year} AltCoinLog. Все права защищены.{" "}
+            <span className="ml-1 inline-flex items-center rounded border border-zinc-600 px-1.5 text-xs font-semibold text-zinc-300" aria-label="Возрастное ограничение 18+">
+              18+
             </span>
-            <span>Все права защищены</span>
           </p>
-          <div className="flex gap-2">
-            <SocialIcon href="#" label="ВКонтакте">
-              <span className="text-[11px] font-bold tracking-tight">VK</span>
-            </SocialIcon>
-            <SocialIcon href="#" label="Telegram">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M22.05 2.05L2.05 11.05l8.5 1.9 1.9 8.5 9.55-19.4z" />
-              </svg>
-            </SocialIcon>
-            <SocialIcon href="#" label="Rutube">
-              <span className="text-sm font-black leading-none">R</span>
-            </SocialIcon>
-          </div>
+          <p className="mx-auto max-w-5xl text-xs leading-relaxed">
+            Информация на сайте не является индивидуальной инвестиционной рекомендацией. Операции с цифровыми активами связаны с высоким
+            риском потери средств — пользователь самостоятельно принимает решения и несёт за них ответственность. Ссылки на сторонние сайты
+            могут быть партнёрскими. Altcoinlog не несёт ответственности за содержание внешних ресурсов.
+          </p>
         </div>
       </div>
     </footer>

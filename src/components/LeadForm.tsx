@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { ConsentCheckbox } from "@/components/legal/ConsentCheckbox";
 
 type Props = {
   action: (
@@ -65,6 +66,7 @@ export function LeadForm({ action, submitLabel }: Props) {
           className="mt-1 w-full rounded-sm border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-brand"
         />
       </label>
+      <ConsentCheckbox />
       {state.error && (
         <p className="text-sm text-red-400" role="alert">
           {state.error}
